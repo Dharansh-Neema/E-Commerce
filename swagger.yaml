@@ -1,0 +1,52 @@
+openapi: 3.0.0
+info:
+  title: Ecoomerce website to practice backend API
+  description: Project to learn more about backend API, file uplaod , payment gateways and much more
+  version: 1.0.1
+  contact:
+    email: dharanshneema@gmail.com
+  license:
+    name: MIT
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: "{port}://localhost:3000/api/{version}"
+    description: for local host
+    variables:
+      version:
+        enum:
+          - v1
+          # - v2
+        default: v1
+      port:
+        enum:
+          - http
+          - https
+        default: http
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: cookieToken
+    BearerAuth:
+      type: http
+      scheme: bearer
+paths:
+  /dummy:
+    get:
+      tags:
+        - String
+      summary: returns a json
+      description: whenever user hit /dummy path it will returns a json response
+      responses:
+        200:
+          description: Request succed here is your String
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "example string"
+        400:
+          description: Request fail
+        500:
+          description: Internal server error!
