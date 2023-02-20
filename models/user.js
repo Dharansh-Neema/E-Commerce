@@ -59,8 +59,10 @@ userSchema.method.isValidatedPassword = async function (recivedpassword) {
 };
 
 //Siging jwt token
-jwtToken.sign({ id: this._id }, process.env.JWT_SECRET, {
-  expiresIn: process.env.JWT_EXPIRY,
-});
+userSchema.method.getJWTtoken = function () {
+  return jwtToken.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRY,
+  });
+};
 //Exporting user schema
 module.exports = mongoose.model("user", userSchema);
