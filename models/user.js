@@ -1,5 +1,9 @@
+//Importing npm files
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bycrypt = require("bcrypt");
+
+//Creating user Schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -40,4 +44,19 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+//Encrypting password before saving
+userSchema.pre("save", async function (next) {
+  //If the password is not being modified we don't encrypt it again
+  if (!this.isModified("password")) return next();
+  //Strenthing the password by 10 rounds of salt
+  this.password = await bycrypt(this.password, 10);
+});
+
+//Validating the password
+userSchema.method.isValidatedPassword = async function (recivedpassword) {
+  return await bycrypt.compare(recivedpassword, this.password);
+};
+
+//Exporting user schema
 module.exports = mongoose.model("user", userSchema);
