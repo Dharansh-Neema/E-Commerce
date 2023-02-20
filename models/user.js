@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bycrypt = require("bcrypt");
-
+const jwtToken = require("jsonwebtoken");
 //Creating user Schema
 const userSchema = new mongoose.Schema({
   name: {
@@ -58,5 +58,9 @@ userSchema.method.isValidatedPassword = async function (recivedpassword) {
   return await bycrypt.compare(recivedpassword, this.password);
 };
 
+//Siging jwt token
+jwtToken.sign({ id: this._id }, process.env.JWT_SECRET, {
+  expiresIn: process.env.JWT_EXPIRY,
+});
 //Exporting user schema
 module.exports = mongoose.model("user", userSchema);
