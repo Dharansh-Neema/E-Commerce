@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bycrypt = require("bcrypt");
 const jwtToken = require("jsonwebtoken");
+const crypto = require("crypto");
+
 //Creating user Schema
 const userSchema = new mongoose.Schema({
   name: {
@@ -64,5 +66,20 @@ userSchema.method.getJWTtoken = function () {
     expiresIn: process.env.JWT_EXPIRY,
   });
 };
+
+//Creating forgot password token
+userSchema.method.forgotpasswordtoken = function () {
+  //Generating random string
+  const forgotPassword = crypto.randomBytes(20).toString("hex");
+  //hashing before storing in DB
+  //gettign a hash-make sure to get hash on backend
+  this.forgotPasswordToken = crypto
+    .createHash("sha256")
+    .update(forgotPassword)
+    .digest("hex");
+  this.forgotPasswordExpiry = Date.now() + 60 * 60 * 1000;
+  return forgotPassword;
+};
+
 //Exporting user schema
 module.exports = mongoose.model("user", userSchema);
