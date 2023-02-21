@@ -1,7 +1,7 @@
 //Importing npm files
 const mongoose = require("mongoose");
 const validator = require("validator");
-const bycrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwtToken = require("jsonwebtoken");
 const crypto = require("crypto");
 
@@ -27,12 +27,9 @@ const userSchema = new mongoose.Schema({
   image: {
     id: {
       type: String,
-      unique: true,
-      required: true,
     },
     secure_url: {
       type: String,
-      required: true,
     },
   },
   role: {
@@ -52,12 +49,13 @@ userSchema.pre("save", async function (next) {
   //If the password is not being modified we don't encrypt it again
   if (!this.isModified("password")) return next();
   //Strenthing the password by 10 rounds of salt
-  this.password = await bycrypt(this.password, 10);
+
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 //Validating the password
 userSchema.method.isValidatedPassword = async function (recivedpassword) {
-  return await bycrypt.compare(recivedpassword, this.password);
+  return await bcrypt.compare(recivedpassword, this.password);
 };
 
 //Siging jwt token

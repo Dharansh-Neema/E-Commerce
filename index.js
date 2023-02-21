@@ -27,9 +27,14 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //importing routes
 const home = require("./routes/home");
+const user = require("./routes/user");
 
-//Decalring routes for home
+//declaring routes for home
 app.use("/api/v1", home);
+
+//Declaring routes for user
+app.use("/api/v1", user);
+
 app.listen(process.env.PORT, () => {
   console.log(`The Server is running at PORT: ${process.env.PORT}`);
 });
