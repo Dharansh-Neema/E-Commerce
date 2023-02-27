@@ -40,6 +40,7 @@ app.use("/api/v1", home);
 //Declaring routes for user
 app.use("/api/v1", user);
 
+//Testing route using ejs
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
