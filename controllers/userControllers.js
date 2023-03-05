@@ -65,25 +65,14 @@ exports.logout = BigPromise(async (req, res, next) => {
     message: "Logout successfully",
   });
 });
-//Temporary function
-const forgotPassword = () => {
-  const forgotPassword = crypto.randomBytes(20).toString("hex");
-  const forgotToken = crypto
-    .createHash("sha256")
-    .update(forgotPassword)
-    .digest("hex");
-  user.forgotPasswordToken = forgotToken;
-  user.forgotPasswordExpiry = Date.now() + 60 * 60 * 1000;
-  return forgotToken;
-};
+
 exports.forgotPassword = BigPromise(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) return next(new customError("User not found!", 400));
 
-  // const forgotToken = user.forgotpasswordtoken();
+  const forgotToken = user.forgotpasswordtoken();
 
-  const forgotToken = forgotPassword();
   user.save({ validateBeforeSave: false });
   const MyUrl = `${req.protocol}://${req.get(
     "host"
