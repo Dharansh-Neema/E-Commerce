@@ -8,6 +8,8 @@ const cookieToken = require("../utils/cookieToken");
 const cloudinary = require("cloudinary").v2;
 const fileUpload = require("express-fileupload");
 const mailsender = require("../utils/mailhelper");
+const user = require("../models/user");
+const crypto = require("crypto");
 //Signup route
 exports.signup = BigPromise(async (req, res, next) => {
   if (!req.files) {
@@ -63,18 +65,29 @@ exports.logout = BigPromise(async (req, res, next) => {
     message: "Logout successfully",
   });
 });
-
+//Temporary function
+const forgotPassword = () => {
+  const forgotPassword = crypto.randomBytes(20).toString("hex");
+  const forgotToken = crypto
+    .createHash("sha256")
+    .update(forgotPassword)
+    .digest("hex");
+  user.forgotPasswordToken = forgotToken;
+  user.forgotPasswordExpiry = Date.now() + 60 * 60 * 1000;
+  return forgotToken;
+};
 exports.forgotPassword = BigPromise(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) return next(new customError("User not found!", 400));
 
-  const forgotToken = user.forgotpasswordtoken();
-  user.forgotPasswordToken = forgotToken;
+  // const forgotToken = user.forgotpasswordtoken();
+
+  const forgotToken = forgotPassword();
   user.save({ validateBeforeSave: false });
   const MyUrl = `${req.protocol}://${req.get(
     "host"
-  )}/password/forgot/:${forgotToken}`;
+  )}/password/forgot/${forgotToken}`;
   const message = `To reset your password copy and paste the given url in your browser \n\n ${MyUrl} `;
   try {
     mailsender({ email, subject: "Ecom Password Reset", message });
