@@ -7,6 +7,7 @@ const cookieToken = require("../utils/cookieToken");
 //importing cloudinary and fileUpload
 const cloudinary = require("cloudinary").v2;
 const fileUpload = require("express-fileupload");
+const mailsender = require("../utils/mailhelper");
 //Signup route
 exports.signup = BigPromise(async (req, res, next) => {
   if (!req.files) {
@@ -61,4 +62,29 @@ exports.logout = BigPromise(async (req, res, next) => {
     success: true,
     message: "Logout successfully",
   });
+});
+
+exports.forgotPassword = BigPromise(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return next(new customError("User not found!", 400));
+
+  const forgotToken = user.forgotpasswordtoken();
+  user.forgotPasswordToken = forgotToken;
+  user.save({ validateBeforeSave: false });
+  const MyUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/password/forgot/:${forgotToken}`;
+  const message = `To reset your password copy and paste the given url in your browser \n\n ${MyUrl} `;
+  try {
+    mailsender({ email, subject: "Ecom Password Reset", message });
+    res.status(200).json({
+      success: true,
+      message: "Successfully send an email!!",
+    });
+  } catch (error) {
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
+    user.save({ validateBeforeSave: false });
+  }
 });

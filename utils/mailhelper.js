@@ -10,7 +10,7 @@ const mailsender = async (options) => {
   });
   const message = {
     from: '"Dharansh👻" <dharanshneema@gmail.com>', // sender address
-    to: options.toEmail, // list of receivers
+    to: options.email, // list of receivers
     subject: options.subject, // Subject line
     text: options.message, // plain text body
   };
