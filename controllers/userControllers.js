@@ -7,8 +7,11 @@ const cookieToken = require("../utils/cookieToken");
 //importing cloudinary and fileUpload
 const cloudinary = require("cloudinary").v2;
 const fileUpload = require("express-fileupload");
+//importing mail sender util function
 const mailsender = require("../utils/mailhelper");
+//importing user model of DB
 const user = require("../models/user");
+//importing crypto to encrypt the password
 const crypto = require("crypto");
 //Signup route
 exports.signup = BigPromise(async (req, res, next) => {
@@ -65,28 +68,56 @@ exports.logout = BigPromise(async (req, res, next) => {
     message: "Logout successfully",
   });
 });
-
+//Temporary function
+const forgotPassword = () => {
+  const forgotPassword = crypto.randomBytes(20).toString("hex");
+  const forgotToken = crypto
+    .createHash("sha256")
+    .update(forgotPassword)
+    .digest("hex");
+  return forgotToken;
+};
 exports.forgotPassword = BigPromise(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) return next(new customError("User not found!", 400));
 
-  const forgotToken = user.forgotpasswordtoken();
+  // const forgotToken = user.forgotpasswordtoken();
 
-  user.save({ validateBeforeSave: false });
+  const forgotToken = forgotPassword();
+  user.forgotPasswordToken = forgotToken;
+  user.forgotPasswordExpiry = Date.now() + 60 * 60 * 1000;
+  await user.save({ validateBeforeSave: false });
   const MyUrl = `${req.protocol}://${req.get(
     "host"
-  )}/password/forgot/${forgotToken}`;
+  )}/api/v1/password/forgot/${forgotToken}`;
   const message = `To reset your password copy and paste the given url in your browser \n\n ${MyUrl} `;
   try {
     mailsender({ email, subject: "Ecom Password Reset", message });
-    res.status(200).json({
-      success: true,
-      message: "Successfully send an email!!",
-    });
+    cookieToken(user, res);
   } catch (error) {
     user.forgotPasswordToken = undefined;
     user.forgotPasswordExpiry = undefined;
     user.save({ validateBeforeSave: false });
+    return next(new customError(error, 500));
   }
+});
+exports.resetPassword = BigPromise(async (req, res, next) => {
+  const token = req.params.token;
+  const encryptToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await User.findOne({
+    forgotPasswordToken: token,
+  });
+  console.log(user);
+  if (!user)
+    return next(new customError("Token is either invalid or expired"), 400);
+  if (req.body.password !== req.body.confirmPassword)
+    return next(
+      new customError("Both password and confirm password should be same", 400)
+    );
+  user.password = req.body.password;
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+  await user.save();
+  cookieToken(user, res);
 });
