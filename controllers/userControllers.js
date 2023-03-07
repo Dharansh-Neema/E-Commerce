@@ -77,6 +77,7 @@ const forgotPassword = () => {
     .digest("hex");
   return forgotToken;
 };
+//Forgot and Reset Password Routes
 exports.forgotPassword = BigPromise(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -120,4 +121,15 @@ exports.resetPassword = BigPromise(async (req, res, next) => {
   user.forgotPasswordExpiry = undefined;
   await user.save();
   cookieToken(user, res);
+});
+
+//User dashBoard
+exports.getLoggedInUserDetails = BigPromise(async (req, res, next) => {
+  console.log(req.user);
+  const user = await User.findById(req.user._id);
+  if (!user) return next(new customError("Logged In first", 401));
+  res.status(200).json({
+    success: true,
+    user,
+  });
 });
