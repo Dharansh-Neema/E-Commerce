@@ -11,7 +11,7 @@ const IsLoggedIn = BigPromise(async (req, res, next) => {
     return next(new customError("Please Login first", 401));
   }
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = await user.findById(decoded);
+  req.user = await user.findById(decoded.id);
 });
 
 module.exports = IsLoggedIn;
