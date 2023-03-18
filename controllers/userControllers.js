@@ -125,9 +125,54 @@ exports.resetPassword = BigPromise(async (req, res, next) => {
 
 //User dashBoard
 exports.getLoggedInUserDetails = BigPromise(async (req, res, next) => {
-  console.log(req.user);
   const user = await User.findById(req.user._id);
-  if (!user) return next(new customError("Logged In first", 401));
+  if (!user) return next(new customError("LogIn first", 401));
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//Change Password
+exports.changePassword = BigPromise(async (req, res, next) => {
+  const id = req.user.id;
+  const user = await User.findById(id);
+  const OldPassword = req.body.oldPassword;
+
+  const compareResult = await bcrypt.compare(OldPassword, user.password);
+  if (!compareResult) {
+    return next(new customError("Current Password is wrong", 400));
+  }
+  user.password = req.body.password;
+  await user.save();
+  cookieToken(user, res);
+});
+
+//Updating user details
+exports.updateUserDetails = BigPromise(async (req, res, next) => {
+  const id = req.user.id;
+  const newData = { name: req.body.name, email: req.body.email };
+  //Checking if Image is updated or not
+  if (req.files) {
+    const user = await User.findById(id);
+    //Deleting the old image
+    const response = await cloudinary.uploader.destroy(user.image.id);
+    //Creating the new image
+    const file = req.files.image;
+    let result = await cloudinary.uploader.upload(file.tempFilePath, {
+      folder: "user",
+    });
+    newData.image = {
+      id: result.id,
+      secure_url: result.secure_url,
+    };
+  }
+
+  //Find by id and update
+  const user = await User.findByIdAndUpdate(id, newData, {
+    new: true,
+    runValidators: true,
+  });
   res.status(200).json({
     success: true,
     user,
