@@ -2,7 +2,7 @@ const BigPromise = require("../middleware/BigPromise");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const customError = require("../utils/customError");
-const IsLoggedIn = BigPromise(async (req, res, next) => {
+IsLoggedIn = BigPromise(async (req, res, next) => {
   const token =
     req.cookies.token ||
     req.body.token ||

@@ -15,6 +15,7 @@ const user = require("../models/user");
 const crypto = require("crypto");
 //Signup route
 exports.signup = BigPromise(async (req, res, next) => {
+  const { name, email, password } = req.body;
   if (!req.files) {
     return next(new customError("Image is required", 400));
   }
@@ -26,7 +27,6 @@ exports.signup = BigPromise(async (req, res, next) => {
     folder: "user",
   });
 
-  const { name, email, password } = req.body;
   const user = await User.create({
     name,
     email,
@@ -177,4 +177,64 @@ exports.updateUserDetails = BigPromise(async (req, res, next) => {
     success: true,
     user,
   });
+});
+
+// Admin Routes
+
+//To list all users
+exports.adminAlluser = BigPromise(async (req, res, next) => {
+  const alluser = await User.find();
+  res.status(200).json({
+    success: true,
+    alluser,
+  });
+});
+
+//To get one particular user
+exports.adminTogetOneUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+//Update an user by an admin
+exports.adminUpdateUser = BigPromise(async (req, res, next) => {
+  const { name, email, role } = req.body;
+  const newData = { name, email, role };
+  const user = await User.findByIdAndUpdate(req.params.id, newData, {
+    new: true,
+    runValidators: true,
+  });
+  if (!user) {
+    return new customError("User not found", 401);
+  }
+  res.status(200).json({
+    success: true,
+    message: "Updated by Admin",
+    user,
+  });
+});
+//Delete an user by an admin
+exports.adminDeleteUser = BigPromise(async (req, res, next) => {
+  const id = req.params.id;
+  const user = await User.findById(id);
+  if (!user) return new customError("User not found", 401);
+  if (user.image) {
+    await cloudinary.uploader.destroy(userImage.image.id);
+  }
+  await user.remove(id);
+  // const user = await User.findByIdAndDelete(id);
+  res.status(200).json({
+    success: true,
+    message: "User Deleted by Admin",
+    user,
+  });
+});
+
+//Manager routes
+exports.managerRoutes = BigPromise(async (req, res, next) => {
+  const user = await User.find({ role: "user" });
+  res.status(200).json({ success: true, user });
 });
