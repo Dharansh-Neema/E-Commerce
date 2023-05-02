@@ -30,7 +30,19 @@ exports.addProduct = BigPromise(async (req, res, next) => {
     product,
   });
 });
-
+exports.getAllproducts = BigPromise(async (req, res, next) => {
+  const resultPerpage = 6;
+  const countTotalitem = await product.countDocuments();
+  const products = new WhereCLause(product.find(), req.query).search().filter();
+  const filtredProductCount = products.length;
+  products.pager(resultPerpage);
+  products = await products.base;
+  res.status(200).json({
+    products,
+    countTotalitem,
+    filtredProductCount,
+  });
+});
 exports.testProduct = BigPromise(async (req, res, next) => {
   res.status(200).json({
     sucess: "true",
