@@ -1,4 +1,3 @@
-const BigPromise = require("./BigPromise");
 const customError = require("../utils/customError");
 customRole = (...roles) => {
   return (req, res, next) => {

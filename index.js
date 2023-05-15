@@ -5,6 +5,7 @@ const app = require("./app");
 require("dotenv").config();
 
 //importing and using file and cookie middleware
+const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" }));
@@ -12,6 +13,11 @@ app.use(cookieParser());
 
 //Regulare middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(express.json());
 
 //some basic logger middleware
@@ -44,7 +50,9 @@ app.use("/api/v1", user);
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
-
+app.get("/add/product", (req, res) => {
+  res.render("addProduct");
+});
 //Decraling routes for products
 app.use("/api/v1", product);
 app.listen(process.env.PORT, () => {

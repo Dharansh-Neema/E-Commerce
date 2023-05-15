@@ -15,7 +15,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: [true, "Product description is required"],
   },
-  images: [
+  image: [
     {
       id: {
         type: String,
@@ -35,7 +35,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please select from given category"],
     enum: {
-      values: ["Short-sleeves", "long-sleeves", "Sweat shirt", "hoodies"],
+      values: ["shortSleeves", "longSleeves", "SweatShirt", "hoodies"],
       message: ["Please select any one from given values"],
     },
   },
@@ -56,7 +56,7 @@ const ProductSchema = new mongoose.Schema({
       },
       name: {
         type: String,
-        required: [true, "Name of user is required"],
+        // required: [true, "Name of user is required"],
       },
       rating: {
         type: Number,
@@ -70,7 +70,7 @@ const ProductSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "user",
-    required: [true, "Person name who added the product is required"],
+    // required: [true, "Person name who added the product is required"],
   },
   creadtedAt: {
     type: Date,
