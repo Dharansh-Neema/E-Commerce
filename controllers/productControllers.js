@@ -59,3 +59,21 @@ exports.testProduct = BigPromise(async (req, res, next) => {
     message: "Test product Route",
   });
 });
+
+exports.getAllproductsAdminRoute = BigPromise(async (req, res, next) => {
+  const products = await Product.find();
+  if (!products) return new customError("Product not found", 401);
+  res.status(200).json({
+    success: true,
+    products,
+  });
+});
+
+exports.getOneProduct = BigPromise(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return new customError("Product not found", 401);
+  res.status(200).json({
+    success: true,
+    product,
+  });
+});
