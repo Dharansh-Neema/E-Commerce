@@ -11,7 +11,8 @@ class WhereCLause {
       ? {
           name: {
             $regex: this.bigQ.search,
-            $options: "i",
+            $options: "i", // i is for case-insenstive search
+            // g is for global search
           },
         }
       : {};
@@ -19,7 +20,7 @@ class WhereCLause {
     return this;
   }
   filter() {
-    //Craeting copy of bigQ
+    //Creating copy of bigQ
     const copyQ = { ...this.bigQ };
     // Deleting some of the non-required fileds
     delete copyQ["limit"];
@@ -27,11 +28,12 @@ class WhereCLause {
     delete copyQ["search"];
 
     //Converting the copyQ into string
-    const stringCopyQ = JSON.stringify(copyQ);
+    let stringCopyQ = JSON.stringify(copyQ);
     stringCopyQ = stringCopyQ.replace(/\b(gte|lte|gt|lt)\b/g, (m) => `$${m}`);
 
     const jsonofCopyQ = JSON.parse(stringCopyQ);
-    this.base = this.base.find(stringCopyQ);
+    this.base = this.base.find(jsonofCopyQ);
+    return this;
   }
   Pager(resultPerPage) {
     let currentPage = 1;
@@ -44,3 +46,4 @@ class WhereCLause {
     return this;
   }
 }
+module.exports = WhereCLause;

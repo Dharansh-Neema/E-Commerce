@@ -14,7 +14,6 @@ IsLoggedIn = BigPromise(async (req, res, next) => {
   //   console.log(decoded);
   req.user = await User.findById(decoded.id);
   next();
-  //   console.log(req.user);
 });
 
 module.exports = IsLoggedIn;

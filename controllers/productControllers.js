@@ -30,6 +30,7 @@ exports.addProduct = BigPromise(async (req, res, next) => {
   }
   req.body.image = imageArray;
   console.log(req.body);
+  // const {name,price,description,brand,}
   // req.body.user = req.user.id;
   const product = await Product.create(req.body);
   res.json({
@@ -39,14 +40,16 @@ exports.addProduct = BigPromise(async (req, res, next) => {
 });
 exports.getAllproducts = BigPromise(async (req, res, next) => {
   const resultPerpage = 6;
-  const countTotalitem = await product.countDocuments();
-  const products = new whereClause(product.find(), req.query).search().filter();
+  // const countTotalitem = await Product.countDocuments();
+  const productsObj = new whereClause(Product.find(), req.query)
+    .search()
+    .filter();
+  let products = await productsObj.base;
   const filtredProductCount = products.length;
-  products.pager(resultPerpage);
-  products = await products.base;
+  productsObj.Pager(resultPerpage);
+  products = await productsObj.base.clone();
   res.status(200).json({
     products,
-    countTotalitem,
     filtredProductCount,
   });
 });
