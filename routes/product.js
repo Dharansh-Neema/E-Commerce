@@ -9,11 +9,12 @@ const {
   addprod2,
   getOneProduct,
   getAllproductsAdminRoute,
+  adminUpdateProducts,
+  adminDeleteProduct,
 } = require("../controllers/productControllers");
 
 //User routes
 routers.route("/products").get(getAllproducts);
-routers.route("/product/:id").get(getOneProduct);
 // routers.route("/add/product").get(addprod2);
 //admin routes
 routers
@@ -21,6 +22,15 @@ routers
   .post(isLoggedIn, customRole("admin"), addProduct);
 
 routers
-  .route("/admin/all/products")
+  .route("/admin/products/all")
   .get(isLoggedIn, customRole("admin"), getAllproductsAdminRoute);
+
+//REST API for admin
+routers
+  .route("/admin/product/:id")
+  .get(isLoggedIn, customRole("admin"), getOneProduct)
+  .put(isLoggedIn, customRole("admin"), adminUpdateProducts)
+  .delete(isLoggedIn, customRole("admin"), adminDeleteProduct);
+
+//Exporting our router
 module.exports = routers;

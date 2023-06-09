@@ -59,7 +59,6 @@ exports.testProduct = BigPromise(async (req, res, next) => {
     message: "Test product Route",
   });
 });
-
 exports.getAllproductsAdminRoute = BigPromise(async (req, res, next) => {
   const products = await Product.find();
   if (!products) return new customError("Product not found", 401);
@@ -75,5 +74,51 @@ exports.getOneProduct = BigPromise(async (req, res, next) => {
   res.status(200).json({
     success: true,
     product,
+  });
+});
+
+exports.adminUpdateProducts = BigPromise(async (req, res, next) => {
+  let product = await Product.findById(req.params.id);
+  const imageArray = [];
+  if (req.files) {
+    for (let index = 0; index < product.image.length; index++) {
+      const res = cloudinary.v2.uploader.destroy(product.image[index].id);
+    }
+    for (let index = 0; index < req.files.image.length; index++) {
+      const toUpload = req.files.image[index].tempFilePath;
+      const result = await cloudinary.v2.uploader.upload(toUpload, {
+        folder: "products",
+      });
+      imageArray.push({ id: result.public_id, secure_url: result.secure_url });
+    }
+    console.log("Old images has been deleted and new images has beend added");
+  }
+  req.body.image = imageArray;
+  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  res.status(201).json({
+    success: true,
+    message: "Updation successfully",
+    product,
+  });
+});
+
+exports.adminDeleteProduct = BigPromise(async (req, res, next) => {
+  const id = req.params.id;
+  const product = await Product.findById(id);
+  if (!product) {
+    new customError("The product doesn't exist", 404);
+  }
+  if (req.files) {
+    for (let index = 0; index < product.image.length; index++) {
+      const id = product.image[index].id;
+      await cloudinary.v2.uploader.destroy(id, { folder: "products" });
+    }
+  }
+  await product.remove();
+  res.status(200).json({
+    success: true,
+    message: "Product has been removed successfully",
   });
 });
