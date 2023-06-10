@@ -40,12 +40,12 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const home = require("./routes/home");
 const user = require("./routes/user");
 const product = require("./routes/product");
+const payment = require("./routes/payment");
 //declaring routes for home
 app.use("/api/v1", home);
 
 //Declaring routes for user
 app.use("/api/v1", user);
-
 //Testing route using ejs
 app.get("/signup", (req, res) => {
   res.render("signup");
@@ -55,6 +55,8 @@ app.get("/add/product", (req, res) => {
 });
 //Decraling routes for products
 app.use("/api/v1", product);
+//Route for payments
+app.use("api/v1", payment);
 app.listen(process.env.PORT, () => {
   console.log(`The Server is running at PORT: ${process.env.PORT}`);
 });
