@@ -7,6 +7,7 @@ const cloudinary = require("cloudinary");
 const Product = require("../models/product");
 
 const whereClause = require("../utils/whereClause");
+const product = require("../models/product");
 //Creating routes for product
 exports.addProduct = BigPromise(async (req, res, next) => {
   console.log(req.body);
@@ -120,5 +121,78 @@ exports.adminDeleteProduct = BigPromise(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Product has been removed successfully",
+  });
+});
+
+//Review Routes handeled here
+
+exports.addReview = BigPromise(async (req, res, next) => {
+  let product = await Product.findById(req.params._id);
+  if (!product) {
+    return new customError("Product don't exist anymore", 401);
+  }
+  const review = {
+    user: req.body.user._id,
+    name: req.body.name,
+    rating: Number(req.body.rating),
+    comment: req.body.comment,
+  };
+  const alreadyReviewd = product.reviews.find(
+    (rev) => rev.user.toString() === req.body.user._id.toString()
+  );
+  if (alreadyReviewd) {
+    product.reviews.forEach((review) => {
+      if (review.user.toString() === req.body.user._id.toString()) {
+        (review.comment = req.body.comment),
+          (review.rating = Number(req.body.rating)),
+          (review.name = req.body.name);
+      }
+    });
+  } else {
+    product.reviews.push(review);
+    product.numberOfReviews = product.reviews.length;
+  }
+  product.ratings =
+    product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+    product.reviews.length;
+  await product.save({ validateBeforeSave: false });
+  res.status(200).json({
+    success: true,
+    message: "Review Added successfully",
+  });
+});
+
+exports.allReviewForOneProduct = BigPromise(async (req, res, next) => {
+  const { productId } = req.body;
+  const product = await Product.findById(productId);
+  if (!product) {
+    return new customError("Product don't exist", 404);
+  }
+  const reviews = product.reviews;
+  res.status(200).json({
+    success: true,
+    reviews,
+  });
+});
+
+exports.deleteReview = BigPromise(async (req, res, next) => {
+  const { ProductId } = req.body;
+  let product = await Product.findById(ProductId);
+  const id = req.body.user._id;
+  const res = product.reviews.filter(
+    (rev) => rev.user.toString() !== id.toString()
+  );
+  const NoOfRatings = res.length;
+  const rating = res.reduce((acc, item) => item.rating + acc, 0) / NoOfRatings;
+  await Product.findByIdAndUpdate(ProductId, {
+    reviews: res,
+    numberOfReviews: NoOfRatings,
+    ratings: rating,
+  });
+  product = await product.save({ new: true });
+  res.status(200).json({
+    success: true,
+    message: "Review Deleted",
+    product,
   });
 });
