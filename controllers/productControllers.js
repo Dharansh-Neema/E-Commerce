@@ -179,13 +179,13 @@ exports.deleteReview = BigPromise(async (req, res, next) => {
   const { ProductId } = req.body;
   let product = await Product.findById(ProductId);
   const id = req.body.user._id;
-  const res = product.reviews.filter(
+  const result = product.reviews.filter(
     (rev) => rev.user.toString() !== id.toString()
   );
-  const NoOfRatings = res.length;
+  const NoOfRatings = result.length;
   const rating = res.reduce((acc, item) => item.rating + acc, 0) / NoOfRatings;
   await Product.findByIdAndUpdate(ProductId, {
-    reviews: res,
+    reviews: result,
     numberOfReviews: NoOfRatings,
     ratings: rating,
   });

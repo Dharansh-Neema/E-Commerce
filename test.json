@@ -1,0 +1,27 @@
+{
+    "shippingInfo": {
+      "address": "39 Banswara",
+      "city": "BSW",
+      "contact": "9898989898",
+      "postalCode": "302020",
+      "state": "Rajasthan",
+      "country": "India"
+    },
+    "orderItems": [
+      {
+        "name": "Pro Coder tshirts",
+        "quantity": 1,
+        "image": "https://res.cloudinary.com/dk92l1yoc/image/upload/v1635757229/products/b4laryk4dbp6vdrvq3wv.png",
+        "price": 999,
+        "product": "646299715967b64e070aa7ce"
+      }
+    ],
+    "paymentInfo": {
+      "id": "PaymenttestString"
+    },
+    "taxAmount": 40,
+    "shippingAmount": 10,
+    "totalAmount": 100
+  }
+  
+  

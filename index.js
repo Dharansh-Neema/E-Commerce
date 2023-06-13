@@ -41,6 +41,7 @@ const home = require("./routes/home");
 const user = require("./routes/user");
 const product = require("./routes/product");
 const payment = require("./routes/payment");
+const order = require("./routes/order");
 //declaring routes for home
 app.use("/api/v1", home);
 
@@ -57,6 +58,8 @@ app.get("/add/product", (req, res) => {
 app.use("/api/v1", product);
 //Route for payments
 app.use("api/v1", payment);
+//Route for Orders
+app.use("/api/v1", order);
 app.listen(process.env.PORT, () => {
   console.log(`The Server is running at PORT: ${process.env.PORT}`);
 });

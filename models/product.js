@@ -39,6 +39,10 @@ const ProductSchema = new mongoose.Schema({
       message: ["Please select any one from given values"],
     },
   },
+  stock: {
+    type: Number,
+    required: true,
+  },
   ratings: {
     type: Number,
     default: 0,
@@ -66,6 +70,7 @@ const ProductSchema = new mongoose.Schema({
       },
     },
   ],
+
   //user adding the product comes here
   user: {
     type: mongoose.Schema.ObjectId,

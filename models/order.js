@@ -1,19 +1,12 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
+// const validator = require("validator");
 const OrderSchema = new mongoose.Schema({
   shippingInfo: {
-    name: {
-      type: String,
-      required: true,
-    },
     contact: {
       type: Number,
       required: true,
     },
-    email: {
-      type: String,
-      validate: validator.isEmail,
-    },
+
     address: {
       type: String,
       required: [true, "Address of Shipment is required"],
@@ -25,15 +18,14 @@ const OrderSchema = new mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: user,
+    ref: "user",
   },
   orderItem: [
     {
       name: String,
       quantity: Number,
       image: {
-        id: String,
-        secure_url: String,
+        type: String,
       },
       price: Number,
       product: {
@@ -43,11 +35,11 @@ const OrderSchema = new mongoose.Schema({
     },
   ],
   paymentInfo: {
-    type: String,
+    id: String,
   },
-  ShippingAmount: Number,
+  shippingAmount: Number,
   taxAmount: Number,
-  TotalAmount: Number,
+  totalAmount: Number,
   orderStatus: {
     type: String,
     default: "processing",
